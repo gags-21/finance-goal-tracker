@@ -1,0 +1,18 @@
+name: expense_track
+description: A new Flutter project.
+publish_to: none
+version: 1.0.0+1
+environment:
+  sdk: '>=3.2.2 <4.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  flashy_tab_bar2: ^0.0.6
+  syncfusion_flutter_gauges: ^24.1.44
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+flutter:
+  uses-material-design: true
