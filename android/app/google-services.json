@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "122524339454",
+    "project_id": "finance-goal-tracker-ab8fa",
+    "storage_bucket": "finance-goal-tracker-ab8fa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:122524339454:android:b8c8c3fa05ec9c14ed69af",
+        "android_client_info": {
+          "package_name": "com.example.expense_track"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCr4sxhfAWuQrOoYq2KQaNNyPaywmwCCk8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

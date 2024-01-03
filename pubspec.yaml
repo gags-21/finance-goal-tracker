@@ -10,6 +10,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   flashy_tab_bar2: ^0.0.6
   syncfusion_flutter_gauges: ^24.1.44
+  firebase_core: ^2.24.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
