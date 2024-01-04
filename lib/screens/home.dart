@@ -1,18 +1,21 @@
-import 'package:expense_track/constants/theme.dart';
+import 'package:expense_track/provider/financial_provider.dart';
 import 'package:expense_track/utils/firebase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
 
-  TextEditingController spendTextController = TextEditingController();
+  final TextEditingController spendTextController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     User? currentUserAuth = FirebaseAuth.instance.currentUser;
     FirebaseStore fireStore = FirebaseStore();
+    final finProvider = Provider.of<FinancialsProvider>(context, listen: false);
+    finProvider.getTarget(uid: currentUserAuth!.uid, targetOf: "month");
     return SingleChildScrollView(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -22,7 +25,7 @@ class HomeScreen extends StatelessWidget {
           ),
           Padding(
             padding:
-                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
             child: Card(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -34,11 +37,14 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       Text(
                         "Hi, ${currentUserAuth!.displayName}",
-                        style: const TextTheme().bodyMedium,
+                        style: const TextStyle(fontSize: 15),
                       ),
-                      Text(
+                      const Text(
                         "Current Saving ",
-                        style: const TextTheme().bodyLarge,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
@@ -46,11 +52,13 @@ class HomeScreen extends StatelessWidget {
                     width: 150,
                     height: 200,
                     child: StreamBuilder<int>(
-                        stream: fireStore.getExpense(uid: currentUserAuth!.uid),
+                        stream: fireStore.getSavings(uid: currentUserAuth!.uid),
                         builder: (context, savedAmount) {
                           // calculating percentage;
-                          double savedPer =
-                              ((savedAmount.data ?? 0) / 10000) * 100;
+                          double savedPer = finProvider.target != 0
+                              ? ((savedAmount.data ?? 0) / finProvider.target) *
+                                  100
+                              : 0;
                           return SfRadialGauge(
                             enableLoadingAnimation: true,
                             axes: [
@@ -71,7 +79,7 @@ class HomeScreen extends StatelessWidget {
                                     cornerStyle: CornerStyle.bothCurve,
                                     width: 0.2,
                                     sizeUnit: GaugeSizeUnit.factor,
-                                    color: Color.fromARGB(255, 1, 51, 91),
+                                    color: const Color.fromARGB(255, 1, 51, 91),
                                   )
                                 ],
                                 annotations: <GaugeAnnotation>[
@@ -138,9 +146,9 @@ class HomeScreen extends StatelessWidget {
                 );
               } else {
                 fireStore
-                    .setExpense(
+                    .setSaving(
                         uid: currentUserAuth.uid,
-                        expense: int.tryParse(spendTextController.text) ?? 0)
+                        saving: int.tryParse(spendTextController.text) ?? 0)
                     .then(
                       (value) => spendTextController.clear(),
                     )
@@ -153,6 +161,45 @@ class HomeScreen extends StatelessWidget {
               "Submit",
             ),
           ),
+
+          const SizedBox(
+            height: 25,
+          ),
+
+          // transactions
+          const Divider(),
+           const SizedBox(
+            height: 10,
+          ),
+          const Text(
+            "History",
+            textAlign: TextAlign.left,
+          ),
+
+          StreamBuilder<Map?>(
+              stream: fireStore.getHistory(uid: currentUserAuth.uid),
+              builder: (context, historyStream) {
+                return historyStream.data != null
+                    ? Column(
+                        children: historyStream.data!.entries.map((his) {
+                        DateTime date = DateTime.parse(his.key);
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20.0, vertical: 5.0),
+                          child: ListTile(
+                            title: const Text("House savings"),
+                            subtitle: Text(
+                                "${date.day} / ${date.month} / ${date.year}"),
+                            trailing: Text(
+                              "\$ ${his.value}",
+                              style: const TextStyle(
+                                  fontSize: 15, color: Colors.green),
+                            ),
+                          ),
+                        );
+                      }).toList())
+                    : const SizedBox();
+              }),
         ],
       ),
     );

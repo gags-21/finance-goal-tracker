@@ -1,4 +1,5 @@
 import 'package:expense_track/constants/theme.dart';
+import 'package:expense_track/provider/financial_provider.dart';
 import 'package:expense_track/screens/expense_track_screen.dart';
 import 'package:expense_track/screens/home.dart';
 import 'package:expense_track/screens/profile.dart';
@@ -6,6 +7,7 @@ import 'package:expense_track/utils/auth.dart';
 import 'package:flashy_tab_bar2/flashy_tab_bar2.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -20,13 +22,18 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => FinancialsProvider()),
+      ],
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        home: const AuthGate(),
       ),
-      home: const AuthGate(),
     );
   }
 }
@@ -41,8 +48,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
   List screens = [
-     HomeScreen(),
-    const TrackerScreen(),
+    HomeScreen(),
+    TrackerScreen(),
     const ProfileScreen(),
   ];
   @override

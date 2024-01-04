@@ -1,180 +1,196 @@
 import 'package:expense_track/constants/theme.dart';
+import 'package:expense_track/constants/widgets.dart';
+import 'package:expense_track/provider/financial_provider.dart';
+import 'package:expense_track/utils/firebase.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_gauges/gauges.dart';
+import 'package:provider/provider.dart';
 
 class TrackerScreen extends StatelessWidget {
-  const TrackerScreen({super.key});
+  TrackerScreen({super.key});
+
+  final TextEditingController targetTextController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    User? currentUserAuth = FirebaseAuth.instance.currentUser;
+    FirebaseStore fireStore = FirebaseStore();
+    final finProvider = Provider.of<FinancialsProvider>(context, listen: false);
+    finProvider.getSavings(uid: currentUserAuth!.uid);
     return Scaffold(
       backgroundColor: kPrimaryColor,
       body: Center(
         child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(
-                height: 30,
-              ),
-              // Radial progress
-              const Text(
-                "Buy Dream House",
-                style: TextStyle(
-                  fontSize: 30,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              const SizedBox(
-                height: 300,
-                width: 300,
-                child: RadialExpenseTracker(
-                  icon: Icons.home_filled,
-                ),
-              ),
-
-              // Goal / Finance info
-              const Padding(
-                padding: EdgeInsets.all(20.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: StreamBuilder<int>(
+              stream: fireStore.getTarget(
+                  uid: currentUserAuth!.uid, targetOf: "buy_home_target"),
+              builder: (context, target) {
+                int moreToGo = (target.data ?? 0) - finProvider.savings;
+                int prediction = moreToGo ~/ 500;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Goal",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                          ),
-                        ),
-                        Text(
-                          "by Jan 2030",
-                          style: TextStyle(color: Colors.white38),
-                        ),
-                      ],
+                    const SizedBox(
+                      height: 30,
                     ),
-                    Text(
-                      "\$ 50,000",
+                    // Radial progress
+                    const Text(
+                      "Buy Dream House",
                       style: TextStyle(
-                        color: Colors.white,
                         fontSize: 30,
+                        color: Colors.white,
                       ),
+                    ),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    SizedBox(
+                      height: 300,
+                      width: 300,
+                      child: RadialExpenseTracker(
+                        icon: Icons.home_filled,
+                        totalTarget: target.data ?? 0,
+                        completedTarget: finProvider.savings,
+                      ),
+                    ),
+
+                    // Goal / Finance info
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Goal",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                ),
+                              ),
+                              Text(
+                                "by Jan 2030",
+                                style: TextStyle(color: Colors.white38),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            "\$ ${target.data ?? 0}",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 30,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    Container(
+                      height: 120,
+                      color: Colors.white10,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20.0, vertical: 10.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "More to go!",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 20),
+                              ),
+                              Text(
+                                "Prediction",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 20),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                "\$ $moreToGo",
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 20),
+                              ),
+                              Text(
+                                "$prediction months",
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 20),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // submit goal details
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    SizedBox(
+                      height: 50,
+                      width: 300,
+                      child: TextField(
+                        controller: targetTextController,
+                        keyboardType: TextInputType.number,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 10),
+                            hintText: "Enter target amount for buying Home",
+                            hintStyle: TextStyle(color: Colors.white54),
+                            ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
+                        if (targetTextController.text.isEmpty ||
+                            targetTextController.text == "") {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Please enter valid target amount"),
+                            ),
+                          );
+                        } else {
+                          fireStore
+                              .setTarget(uid: currentUserAuth!.uid, target: {
+                                "buy_home_target":
+                                    int.tryParse(targetTextController.text) ?? 0
+                              })
+                              .then(
+                                (value) => targetTextController.clear(),
+                              )
+                              .catchError((e) {
+                                ScaffoldMessenger.of(context);
+                              });
+                        }
+                      },
+                      child: const Text(
+                        "Submit",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 20,
                     )
                   ],
-                ),
-              ),
-              Container(
-                height: 120,
-                color: Colors.white10,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0, vertical: 10.0),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "More to go!",
-                          style: TextStyle(color: Colors.white, fontSize: 20),
-                        ),
-                        Text(
-                          "Prediction",
-                          style: TextStyle(color: Colors.white, fontSize: 20),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          "\$ 30,000",
-                          style: TextStyle(color: Colors.white, fontSize: 20),
-                        ),
-                        Text(
-                          "\$ 300",
-                          style: TextStyle(color: Colors.white, fontSize: 20),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              )
-            ],
-          ),
+                );
+              }),
         ),
       ),
-    );
-  }
-}
-
-class RadialExpenseTracker extends StatelessWidget {
-  const RadialExpenseTracker({
-    super.key,
-    required this.icon,
-  });
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return SfRadialGauge(
-      enableLoadingAnimation: true,
-      axes: [
-        RadialAxis(
-          minimum: 0,
-          maximum: 100,
-          showLabels: false,
-          showTicks: false,
-          axisLineStyle: const AxisLineStyle(
-            thickness: 0.1,
-            cornerStyle: CornerStyle.bothCurve,
-            color: Color.fromARGB(30, 152, 152, 152),
-            thicknessUnit: GaugeSizeUnit.factor,
-          ),
-          pointers: const <GaugePointer>[
-            RangePointer(
-              value: 70,
-              cornerStyle: CornerStyle.bothCurve,
-              width: 0.1,
-              sizeUnit: GaugeSizeUnit.factor,
-              color: Color.fromARGB(255, 255, 255, 255),
-            )
-          ],
-          annotations: <GaugeAnnotation>[
-            GaugeAnnotation(
-                positionFactor: 0.1,
-                angle: 90,
-                widget: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      icon,
-                      color: Colors.white,
-                      size: 100,
-                    ),
-                    const Text(
-                      "\$ 1000",
-                      style: TextStyle(fontSize: 30, color: Colors.white),
-                    ),
-                    const Text(
-                      "You Saved",
-                      style: TextStyle(
-                        color: Colors.white54,
-                        fontSize: 20,
-                      ),
-                    ),
-                  ],
-                ))
-          ],
-        ),
-      ],
     );
   }
 }
