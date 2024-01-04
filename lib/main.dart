@@ -41,7 +41,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
   List screens = [
-    const HomeScreen(),
+     HomeScreen(),
     const TrackerScreen(),
     const ProfileScreen(),
   ];
