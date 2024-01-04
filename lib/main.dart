@@ -1,12 +1,15 @@
 import 'package:expense_track/constants/theme.dart';
 import 'package:expense_track/screens/expense_track_screen.dart';
 import 'package:expense_track/screens/home.dart';
+import 'package:expense_track/screens/profile.dart';
+import 'package:expense_track/utils/auth.dart';
 import 'package:flashy_tab_bar2/flashy_tab_bar2.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -23,7 +26,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(),
+      home: const AuthGate(),
     );
   }
 }
@@ -40,6 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List screens = [
     const HomeScreen(),
     const TrackerScreen(),
+    const ProfileScreen(),
   ];
   @override
   Widget build(BuildContext context) {

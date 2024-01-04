@@ -11,6 +11,9 @@ dependencies:
   flashy_tab_bar2: ^0.0.6
   syncfusion_flutter_gauges: ^24.1.44
   firebase_core: ^2.24.2
+  cloud_firestore: ^4.13.6
+  google_sign_in: ^6.2.1
+  firebase_auth: ^4.15.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
