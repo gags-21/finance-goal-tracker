@@ -66,10 +66,12 @@ flutter pub get
 flutter run
 ```
 
+> Please first submit goal target amount & monthly target amount in Tracker screen.
+
 ## Screenshots
 
 <img src="https://github.com/gags-21/finance-goal-tracker/assets/61724325/76257ef2-e23d-4895-8f68-fa894bae4bf1" alt="Login Screen" height="500"/>
 
-<img src="https://github.com/gags-21/finance-goal-tracker/assets/61724325/1edcf092-8c3d-482b-a487-a999a6d86e19" alt="Login Screen" height="500"/>
+<img src="https://github.com/gags-21/finance-goal-tracker/assets/61724325/1edcf092-8c3d-482b-a487-a999a6d86e19" alt="Home Screen" height="500"/>
 
-<img src="https://github.com/gags-21/finance-goal-tracker/assets/61724325/ea509004-b235-418a-afbf-1d7b0c5e9ed8" alt="Login Screen" height="500"/>
+<img src="https://github.com/gags-21/finance-goal-tracker/assets/61724325/ea509004-b235-418a-afbf-1d7b0c5e9ed8" alt="Tracking Screen" height="500"/>
