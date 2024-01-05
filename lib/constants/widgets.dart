@@ -14,7 +14,7 @@ class RadialExpenseTracker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double percent = (completedTarget / totalTarget) * 100;
+    double percent = totalTarget != 0 ? (completedTarget / totalTarget) * 100 : 0;
     return SfRadialGauge(
       enableLoadingAnimation: true,
       axes: [
